@@ -4,12 +4,27 @@ import './App.css';
 
 class App extends React.Component{
   constructor(props) {
-    super(props)
-  
+    super(props);
+
     this.state = {
-       name:"Lukman",
+       countries:[],
+       stats:[]
 
     }
+  }
+  async componentDidMount(){
+    const resp = await fetch('https://api.covid19api.com/countries')
+    const countries = await resp.json()
+    this.setState({countries})
+    this.state.countries.forEach(async country => {
+      const resp = await fetch(`https://api.covid19api.com/total/country/${country.Slug}`)
+      const data = await resp.json()
+      if(data.length)
+      this.setState(prevState => (
+        {stats:prevState.stats.concat(data[data.length - 1])}
+      ))
+    })
+    
   }
 
   
@@ -17,8 +32,9 @@ class App extends React.Component{
   render(){
     return(
       <div className="App">
-        {this.state.name}
-        <button onClick={() => this.setState({name:'Bukenya'})}>Chanage Name</button>
+          {
+            this.state.stats.map(country => <h1>{country.Country}</h1>)
+          }
       </div>
     )
   }
